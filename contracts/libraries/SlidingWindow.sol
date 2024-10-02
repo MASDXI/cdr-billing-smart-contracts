@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-library SidingWindow {
+library SlidingWindow {
     // each cycle contain 30 slot as limit.
     struct SlidingWindowState {
         uint256 startBlockTimestamp;

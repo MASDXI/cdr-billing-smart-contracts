@@ -6,7 +6,7 @@ pragma solidity >=0.8.0 <0.9.0;
 
 import {CircularDoublyLinkedList as List} from "../libraries/CircularDoublyLinkedList.sol";
 
-interface IBilling {
+interface IBillingManager {
     enum SERVICE_TYPES { VOICE, DATA, SMS, RESERVED }
 
     struct CDR {
@@ -22,7 +22,7 @@ interface IBilling {
         List.List list;
     }
 
-    struct SnapShot {
+    struct Snapshot {
         uint256 cycle;
         uint8 slot;
         // @TODO other attribute
@@ -41,10 +41,10 @@ interface IBilling {
     function overdueBalanceOf(bytes16 userId) external view returns (uint256);
     function outstandingBalanceOf(bytes16  userId) external view returns (uint256);
     function currentBillingCycleOf(bytes16 userId) external view returns (uint256);
-    function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) external;
     function pausedBilling(bytes16 userId) external;
     function unpausedBilling(bytes16 userId) external;
     function statusBillingOf(bytes16 userId) external view returns (bool); // return true if billing not paused, false if paused
+    function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) external;
     function dischargeOutstandingBalanceOf(bytes16 userId, uint256 bill, uint8 slot, uint256 value) external; // overloading for partial, selective bill  
     function cdrOfBill(bytes16 userId, uint256 cycle) external view returns (CDR [] memory);
     function cdrOfSlot(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory);
