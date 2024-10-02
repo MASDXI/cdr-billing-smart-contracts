@@ -41,7 +41,6 @@ abstract contract BillingManager is IBillingManager {
         _;
     }
 
-
     // constructor () {}
 
     function _init(bytes16 userId) internal {
@@ -57,14 +56,14 @@ abstract contract BillingManager is IBillingManager {
     } 
 
     /// @dev add CDR to current bill
-    function addCDR(bytes16 userId, CDR memory cdr) public {
+    function addCDR(bytes16 userId, CDR memory record) public {
         // initial the bill if not initialized before
         if (!_initial[userId]) {
             _init(userId);
         }
         // Bill storage bill = _current(userId, _blockNumberProvider());
         // uint256 index = bill.list.size() + 1;
-        // bill.CDRs[index] = cdr;
+        // bill.CDRs[index] = record;
         // bill.list.add(index);
         emit CDRAdded(userId);
     }
