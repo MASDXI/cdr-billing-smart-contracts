@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-import "./IBillingManager.sol";
-import {SlidingWindow as slide} from "./SlidingWindow.sol";
+import "./interfaces/IBillingManager.sol";
+import {SlidingWindow as slide} from "./libraries/SlidingWindow.sol";
 
 /// @title Billing Call Detail Records Contract
 /// @notice This contract is intended to be called exclusively by operators or service providers. It is not designed for direct retail actions by end-users.
@@ -16,6 +16,7 @@ abstract contract BillingManager is SlidingWindow {
     mapping(bytes16 => mapping(uint256 => mapping(uint8 => Bill))) private _bills;
     // This mapping stores the entry point for each userId to calculate the start of their unique billing cycle.
     mapping(bytes16 => slide.SlidingWindowState) private _entryPoints;
+    mapping(bytes16 => Snapshot) private _snapShots;
 
     // constructor () {}
 
