@@ -35,7 +35,6 @@ interface IBillingManager {
     event BillingPaused(bytes16 indexed userId);
     event BillingUnpaused(bytes16 indexed userId);
    
-    function initialBill(bytes16 userId) external;
     function addCDR(bytes16 userId, CDR memory cdr) external;
     function removeCDR(bytes16 userId, uint256 index) external; // is removeCDR() can edit past bill?
     function overdueBalanceOf(bytes16 userId) external view returns (uint256);
