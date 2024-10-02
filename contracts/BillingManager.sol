@@ -36,17 +36,23 @@ abstract contract BillingManager is IBillingManager {
     function initialBill(bytes16 userId) public {
         // @TODO
         // events
+        // emit BillInitialized(userId);
     }
 
     /// @dev add CDR to current bill
     function addCDR(bytes16 userId, CDR memory cdr) public {
-        // @TODO
+        // Bill storage bill = _current(userId);
+        // uint256 index = bill.list.size() + 1;
+        // bill.CDRs[index] = cdr;
+        // bill.list.add(index);
         emit CDRAdded(userId);
     }
 
     /// @dev remove CDR from current bill
     function removeCDR(bytes16 userId, uint256 index) public {
-        // @TODO
+        // Bill storage bill = _current(userId);
+        // delete bill.CDRs[index];
+        // bill.list.remove(index);
         emit CDRRemoved(userId);
     }
 
@@ -69,32 +75,36 @@ abstract contract BillingManager is IBillingManager {
         return 0;
     }
 
-    function cdrOfBill(bytes16 userId, uint256 cycle) external view returns (CDR [] memory res) {
+    function cdrOfBill(bytes16 userId, uint256 cycle) external view returns (CDR [] memory) {
         // @TODO
-        return res;
+        CDR [] memory CDRs;
+        return CDRs;
     }
-    function cdrOfSlot(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory res) {
+    function cdrOfSlot(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory) {
         // @TODO
-        return res;
+        CDR [] memory CDRs;
+        return CDRs;
     }
 
     function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) public {
-        // @TODO
+        // @TODO full
         emit OutstandingBalanceDischarged(userId);
     }
 
     function dischargeOutstandingBalanceOf(bytes16 userId, uint256 bill, uint8 slot, uint256 value) public {
-        // @TODO
+        // @TODO partial
         emit OutstandingBalanceDischarged(userId);
     }
 
     function pausedBilling(bytes16 userId) public {
         // @TODO
+        // store snapshot
         emit BillingPaused(userId);
     }
 
     function unpausedBilling(bytes16 userId) public {
         // @TODO
+        // load snapshot
         emit BillingUnpaused(userId);
     }
 
