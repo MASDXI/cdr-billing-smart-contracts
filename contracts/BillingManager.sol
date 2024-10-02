@@ -9,6 +9,18 @@ import {SlidingWindow as slide} from "./libraries/SlidingWindow.sol";
 /// It is not designed for direct retail actions by end-users.
 /// @author sirawt (@MASDXI)
 
+// userId1 Bill
+//                             current
+//                                |
+// <------ cycle 1 ------><- cycle 2->
+// [slot][slot][...][slot][slot][slot]
+
+// userId 2 Bill
+//                             current
+//                                |
+// <- cycle 7 -----><--- cycle 8 ---->
+// [slot][slot][...][slot][slot][slot]
+
 abstract contract BillingManager is IBillingManager {
     using slide for slide.SlidingWindowState;
     // _bills[userId][cycles][slots]
