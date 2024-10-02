@@ -8,7 +8,8 @@ This repository provides Call Detail Records (CDRs) billing using smart contract
 
 ## Rationale
 
----
+- The design approach should not tied exclusively to Solidity or Ethereum but can be applied across various Distributed Ledger Technologies (DLTs) or blockchain frameworks that support Turing-complete smart contracts.
+- Avoid `WRITE` or `UPDATE` operation with Sliding Window Algorithm for billing efficiently over a specified time period. This method helps in maintaining a consistent billing cycle by leveraging a sliding window mechanism that automatically accounts for time-based or usage-based triggers without needing constant manual updates.
 
 ## Security Consideration
 
