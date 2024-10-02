@@ -4,7 +4,7 @@ pragma solidity >=0.8.0 <0.9.0;
 /// @title Interface for Billing Call Detail Records
 /// @author sirawt (@MASDXI)
 
-import {CircularDoublyLinkedList as List} from "../libraries/CircularDoublyLinkedList.sol";
+import {CircularDoublyLinkedList as LinkedList} from "../libraries/CircularDoublyLinkedList.sol";
 
 interface IBillingManager {
     enum SERVICE_TYPES { VOICE, DATA, SMS, RESERVED }
@@ -19,7 +19,7 @@ interface IBillingManager {
     struct Bill {
         uint256 outstandingBalance;
         mapping(uint256 => CDR) CDRs;
-        List.List list;
+        LinkedList.List list;
     }
 
     struct Snapshot {
