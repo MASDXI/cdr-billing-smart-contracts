@@ -6,6 +6,11 @@
   "author": "MASDXI",
   "license": "Apache-2.0",
   "private": true,
+  "scripts": {
+    "coverage": "npx hadhat coverage",
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.0",

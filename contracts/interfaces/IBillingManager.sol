@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 pragma solidity >=0.8.0 <0.9.0;
 
-/// @title Interface for Billing Call Detail Records
+/// @title Billing Call Detail Records Interface
 /// @author sirawt (@MASDXI)
 
 import {CircularDoublyLinkedList as LinkedList} from "../libraries/CircularDoublyLinkedList.sol";
@@ -13,7 +13,8 @@ interface IBillingManager {
         SERVICE_TYPES service;
         uint256 timestamp;
         uint256 cost;
-        // @TODO other attribute
+        uint256 balance;
+        // @TODO other attribute?
     }
 
     struct Bill {
@@ -22,29 +23,30 @@ interface IBillingManager {
         LinkedList.List list;
     }
 
-    struct Snapshot {
-        uint256 cycle;
-        uint8 slot;
-        // @TODO other attribute
-    }
+    error ErrorBillingInitialized();
+    error ErrorBillingPaused();
+    error ErrorBillingNotPaused();
 
-    // @TODO other parameter
+    // @TODO other parameter?
     event CDRAdded(bytes16 indexed userId);
     event CDRRemoved(bytes16 indexed userId);
     event OutstandingBalanceDischarged(bytes16 indexed userId);
+    event BillInitialized(bytes16 indexed userId);
     event BillingPaused(bytes16 indexed userId);
     event BillingUnpaused(bytes16 indexed userId);
    
     function addCDR(bytes16 userId, CDR memory cdr) external;
-    function removeCDR(bytes16 userId, uint256 index) external; // is removeCDR() can edit past bill?
-    function overdueBalanceOf(bytes16 userId) external view returns (uint256);
-    function outstandingBalanceOf(bytes16  userId) external view returns (uint256);
+    function removeCDR(bytes16 userId, uint256 index) external;
+    /// @custom:overloading addCDR to specific cycle and slot?
+    /// @custom:overloading removeCDR from specific cycle and slot?
+    function overdueBalanceOf(bytes16 userId) external view returns (uint256 overdueBalance);
+    function outstandingBalanceOf(bytes16  userId) external view returns (uint256 outstandingBalance);
     function currentBillingCycleOf(bytes16 userId) external view returns (uint256);
     function pausedBilling(bytes16 userId) external;
     function unpausedBilling(bytes16 userId) external;
     function statusBillingOf(bytes16 userId) external view returns (bool); // return true if billing not paused, false if paused
-    function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) external;
-    function dischargeOutstandingBalanceOf(bytes16 userId, uint256 bill, uint8 slot, uint256 value) external; // overloading for partial, selective bill  
-    function cdrOfBill(bytes16 userId, uint256 cycle) external view returns (CDR [] memory);
-    function cdrOfSlot(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory);
+    function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) external; // auto discharge for current
+    /// @custom:overloading dischargeOutstandingBalanceOf(bytes16 userId, uint256 cycle, uint8 slot, uint256 value) for partial, selective bill? 
+    function cdrOf(bytes16 userId, uint256 cycle) external view returns (CDR [] memory); // return all cdr of given cycle
+    function cdrOf(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory); // return all cdr of given cylcle and slot.
 }
