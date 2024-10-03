@@ -36,6 +36,10 @@ library SlidingWindow {
         self.snapShotSlot = slotCache;
     }
 
+    function loadSnapShot(State storage self) internal view returns (uint256 ,uint8) {
+        return (self.snapShotCycle ,self.snapShotSlot);
+    }
+
     function cycle(
         State storage self,
         uint24 blockTime,

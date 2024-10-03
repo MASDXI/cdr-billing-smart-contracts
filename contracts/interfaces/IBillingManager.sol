@@ -34,19 +34,19 @@ interface IBillingManager {
     event BillInitialized(bytes16 indexed userId);
     event BillingPaused(bytes16 indexed userId);
     event BillingUnpaused(bytes16 indexed userId);
-   
+
+    /// @custom:overloading addCDR() to specific cycle and slot?
+    /// @custom:overloading removeCDR() from specific cycle and slot?
+    /// @custom:overloading dischargeOutstandingBalanceOf() for partial, selective bill? 
     function addCDR(bytes16 userId, CDR memory cdr) external;
     function removeCDR(bytes16 userId, uint256 index) external;
-    /// @custom:overloading addCDR to specific cycle and slot?
-    /// @custom:overloading removeCDR from specific cycle and slot?
-    function overdueBalanceOf(bytes16 userId) external view returns (uint256 overdueBalance);
-    function outstandingBalanceOf(bytes16  userId) external view returns (uint256 outstandingBalance);
+    function overdueBalanceOf(bytes16 userId) external view returns (uint256);
+    function outstandingBalanceOf(bytes16  userId) external view returns (uint256);
     function currentBillingCycleOf(bytes16 userId) external view returns (uint256);
     function pausedBilling(bytes16 userId) external;
     function unpausedBilling(bytes16 userId) external;
     function statusBillingOf(bytes16 userId) external view returns (bool); // return true if billing not paused, false if paused
     function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) external; // auto discharge for current
-    /// @custom:overloading dischargeOutstandingBalanceOf(bytes16 userId, uint256 cycle, uint8 slot, uint256 value) for partial, selective bill? 
-    function cdrOf(bytes16 userId, uint256 cycle) external view returns (CDR [] memory); // return all cdr of given cycle
-    function cdrOf(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory); // return all cdr of given cylcle and slot.
+    function cdrOf(bytes16 userId, uint256 cycle) external view returns (CDR [] memory);
+    function cdrOf(bytes16 userId, uint256 cycle, uint8 slot)  external view returns (CDR [] memory);
 }

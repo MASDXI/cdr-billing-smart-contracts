@@ -70,12 +70,19 @@ abstract contract BillingManager is IBillingManager {
         return _bills[userId][cycle][slot];
     }
 
-    function statusBillingOf(bytes16 userId) public override view returns (bool){
-        return _pause[userId];
+    function _caculateOutstandingBalanceOf(bytes16 userId,uint256 cycle, uint8 slot) internal view returns (uint256 outstandingBalance) {
+        outstandingBalance = _bills[userId][cycle][0].outstandingBalance;
+        while (slot > 0) {
+            uint slotOutstandingBalanceCache = _bills[userId][cycle][slot].outstandingBalance;
+            if (slotOutstandingBalanceCache > 0) {
+                outstandingBalance += slotOutstandingBalanceCache;
+            }
+            slot--;
+            return outstandingBalance;
+        }
     }
 
-    function overdueBalanceOf(bytes16 userId) public override view  returns (uint256 overdueBalance)  {
-        (uint256 cycle, uint8 slot) = _slidingWindows[userId].cycleAndSlot(_blockTime, _blockNumberProvider());
+    function _caculateOverdueBalanceOf(bytes16 userId,uint256 cycle, uint8 slot) internal view returns (uint256 overdueBalance) {
         if (cycle > 0) {
             cycle--;
             overdueBalance = _bills[userId][cycle][0].outstandingBalance;
@@ -86,41 +93,74 @@ abstract contract BillingManager is IBillingManager {
                 }
                 slot--;
             }
+            return overdueBalance;
         }
     }
 
-    function outstandingBalanceOf(bytes16  userId) public override view hasInit(userId) returns (uint256 outstandingBalance) {
-        (uint256 cycle, uint8 slot) = _slidingWindows[userId].cycleAndSlot(_blockTime, _blockNumberProvider());
-        outstandingBalance = _bills[userId][cycle][0].outstandingBalance;
-        while (slot > 0) {
-            uint slotOutstandingBalanceCache = _bills[userId][cycle][slot].outstandingBalance;
-            if (slotOutstandingBalanceCache > 0) {
-                outstandingBalance += slotOutstandingBalanceCache;
-            }
-            slot--;
-        }
-    }
-
-    function currentBillingCycleOf(bytes16 userId) public virtual override view hasInit(userId) returns (uint256) {
-        return _slidingWindows[userId].cycle(_blockTime, _blockNumberProvider());
-    }
-
-    /// @custom:inefficient CDRs can be large
+    /// @custom:inefficient all CDRs under cycle can be large
     function cdrOf(bytes16 userId, uint256 cycle) public virtual override view hasInit(userId) returns (CDR [] memory) {
-        Bill storage bill = _currentBillPointer(userId, _blockNumberProvider());
-        // @TODO loop
-        CDR [] memory CDRs;
-        return CDRs;
+        uint256 totalCDRCountCache;
+        for (uint8 slot = 0; slot < 30; slot++) {
+            uint256 size = _bills[userId][cycle][slot].list.size();
+            if (size > 0) {
+               totalCDRCountCache += size; 
+            }
+        }
+        CDR[] memory cdrsCache = new CDR[](totalCDRCountCache);
+        uint256 index;
+        for (uint8 slot = 0; slot < 30; slot++) {
+            uint256[] memory templist = _bills[userId][cycle][slot].list.toArray();
+            for (uint256 i = 0; i < templist.length; i++) {
+                cdrsCache[index] = _bills[userId][cycle][slot].CDRs[templist[i]];
+                index++;
+            }
+        }
+        return cdrsCache;
     }
 
     function cdrOf(bytes16 userId, uint256 cycle, uint8 slot) public virtual override view hasInit(userId) returns (CDR [] memory) {
         uint256 [] memory templist = _bills[userId][cycle][slot].list.toArray();
         uint256 length = templist.length;
-        CDR [] memory cdrs = new CDR[](length);
+        CDR [] memory cdrsCache = new CDR[](length);
         for (uint256 i = 0; i < length; i++) {
-            cdrs[i] = _bills[userId][cycle][slot].CDRs[templist[i]];
+            cdrsCache[i] = _bills[userId][cycle][slot].CDRs[templist[i]];
         }
-        return cdrs;
+        return cdrsCache;
+    }
+
+    function currentBillingCycleOf(bytes16 userId) public virtual override view hasInit(userId) returns (uint256) {
+        if (_pause[userId]) {
+            (uint256 cycle,) = _slidingWindows[userId].loadSnapShot();
+            return cycle;
+        } else {
+            return _slidingWindows[userId].cycle(_blockTime, _blockNumberProvider());
+        }
+    }
+
+    function outstandingBalanceOf(bytes16  userId) public override view hasInit(userId) returns (uint256) {
+        if (_pause[userId]) {
+            (uint256 cycle, uint8 slot) = _slidingWindows[userId].loadSnapShot();
+            return _caculateOutstandingBalanceOf(userId, cycle, slot);
+        } else {
+            (uint256 cycle, uint8 slot) = _slidingWindows[userId].cycleAndSlot(_blockTime, _blockNumberProvider());
+            return _caculateOutstandingBalanceOf(userId, cycle, slot);
+        }
+    }
+
+    /// @custom:integrity May return zero if too much time has passed.
+    /// Calculates overdue balance by checking previous cycle and slots for outstanding amounts.
+    function overdueBalanceOf(bytes16 userId) public override view returns (uint256)  {
+        if (_pause[userId]) {
+            (uint256 cycle, uint8 slot) = _slidingWindows[userId].loadSnapShot();
+            return _caculateOverdueBalanceOf(userId, cycle, slot);
+        } else {
+            (uint256 cycle, uint8 slot) = _slidingWindows[userId].cycleAndSlot(_blockTime, _blockNumberProvider());
+            return _caculateOverdueBalanceOf(userId, cycle, slot);
+        }
+    }
+
+    function statusBillingOf(bytes16 userId) public override view returns (bool){
+        return _pause[userId];
     }
 
     function addCDR(bytes16 userId, CDR memory record) public virtual override whenNotPaused(userId) {
@@ -144,7 +184,10 @@ abstract contract BillingManager is IBillingManager {
     }
 
     function dischargeOutstandingBalanceOf(bytes16 userId, uint256 value) public virtual override hasInit(userId) {
-        // @TODO first-in-first-out discharge
+        Bill storage bill = _currentBillPointer(userId, _blockNumberProvider());
+        if (outstandingBalanceOf(userId) > 0) {
+            // @TODO first-in-first-out discharge
+        }
         emit OutstandingBalanceDischarged(userId);
     }
 
