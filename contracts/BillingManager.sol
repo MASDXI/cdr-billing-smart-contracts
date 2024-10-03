@@ -173,6 +173,7 @@ abstract contract BillingManager is IBillingManager {
         Bill storage bill = _currentBillPointer(userId, _blockNumberProvider());
         uint256 index = bill.list.size() + 1;
         bill.CDRs[index] = record;
+        bill.oustandingBalance += record.outstandingBalance;
         bill.list.add(index);
         emit CDRAdded(userId);
     }
