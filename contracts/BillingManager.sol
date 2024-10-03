@@ -98,19 +98,17 @@ abstract contract BillingManager is IBillingManager {
     }
 
     /// @custom:inefficient all CDRs under cycle can be large
-    function cdrOf(bytes16 userId, uint256 cycle) public virtual override view hasInit(userId) returns (CDR [] memory) {
-        uint256 totalCDRCountCache;
+    function cdrOf(bytes16 userId, uint256 cycle) public virtual override view hasInit(userId) returns (CDR[] memory) {
+        uint256 totalCDRCountCache = 0;
         for (uint8 slot = 0; slot < 30; slot++) {
             uint256 size = _bills[userId][cycle][slot].list.size();
-            if (size > 0) {
-               totalCDRCountCache += size; 
-            }
+            totalCDRCountCache += size; // Count all CDRs across slots
         }
         CDR[] memory cdrsCache = new CDR[](totalCDRCountCache);
-        uint256 index;
+        uint256 index = 0; // Initialize index to 0
         for (uint8 slot = 0; slot < 30; slot++) {
             uint256[] memory templist = _bills[userId][cycle][slot].list.toArray();
-            for (uint256 i = 0; i < templist.length; i++) {
+            for (uint256 i = 0; i < templist.length; i++) { // Change to start at 0
                 cdrsCache[index] = _bills[userId][cycle][slot].CDRs[templist[i]];
                 index++;
             }
@@ -119,13 +117,13 @@ abstract contract BillingManager is IBillingManager {
     }
 
     function cdrOf(bytes16 userId, uint256 cycle, uint8 slot) public virtual override view hasInit(userId) returns (CDR [] memory) {
-        uint256 [] memory templist = _bills[userId][cycle][slot].list.toArray();
-        uint256 length = templist.length;
-        CDR [] memory cdrsCache = new CDR[](length);
-        for (uint256 i = 0; i < length; i++) {
-            cdrsCache[i] = _bills[userId][cycle][slot].CDRs[templist[i]];
+        uint256[] memory templist = _bills[userId][cycle][slot].list.toArray(); // Get the array of nodes
+        CDR[] memory cdrsCache = new CDR[](templist.length); // Initialize cache for CDRs
+        for (uint256 i = 0; i < templist.length; i++) { // Iterate over the length of the templist
+            cdrsCache[i] = _bills[userId][cycle][slot].CDRs[templist[i]]; // Retrieve CDRs using the node identifiers
         }
-        return cdrsCache;
+
+        return cdrsCache; // Return the filled array of CDRs
     }
 
     function currentBillingCycleOf(bytes16 userId) public virtual override view hasInit(userId) returns (uint256) {
@@ -135,6 +133,11 @@ abstract contract BillingManager is IBillingManager {
         } else {
             return _slidingWindows[userId].cycle(_blockTime, _blockNumberProvider());
         }
+    }
+
+    function currentSizeOfCDRs(bytes16 userId) public virtual view hasInit(userId) returns (uint256) {
+        Bill storage bill = _currentBillPointer(userId, _blockNumberProvider());
+        return bill.list.size();
     }
 
     function outstandingBalanceOf(bytes16  userId) public override view hasInit(userId) returns (uint256) {
