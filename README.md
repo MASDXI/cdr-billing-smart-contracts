@@ -9,8 +9,8 @@ This repository provides Call Detail Records (CDRs) billing using smart contract
 - git [Download](https://git-scm.com/)
 
 ```shell
-git clone https://github.com/Kiwari-Labs/token-service-contracts.git
-cd token-service-contracts
+git clone https://github.com/MASDXI/cdr-billing-smart-contracts.git
+cd cdr-billing-smart-contracts
 ```
 
 ## Installing
