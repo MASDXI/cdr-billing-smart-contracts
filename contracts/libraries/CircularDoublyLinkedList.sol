@@ -11,22 +11,34 @@ library CircularDoublyLinkedList {
     bool private constant NEXT = true;
     bool private constant PREV = false;
 
-    function contains(List storage self, uint256 node) internal view returns (bool) {
-        return self.nodes[node][NEXT] > 0 || self.nodes[node][PREV] > 0 || self.nodes[RESERVED][NEXT] == node;
+    function contains(
+        List storage self,
+        uint256 node
+    ) internal view returns (bool) {
+        return
+            self.nodes[node][NEXT] > 0 ||
+            self.nodes[node][PREV] > 0 ||
+            self.nodes[RESERVED][NEXT] == node;
     }
 
-    function next(List storage self, uint256 node) internal view returns (uint256) {
+    function next(
+        List storage self,
+        uint256 node
+    ) internal view returns (uint256) {
         return self.nodes[node][NEXT];
     }
 
-    function previous(List storage self, uint256 node) internal view returns (uint256) {
+    function previous(
+        List storage self,
+        uint256 node
+    ) internal view returns (uint256) {
         return self.nodes[node][PREV];
     }
 
     function first(List storage self) internal view returns (uint256) {
         return self.nodes[RESERVED][NEXT];
     }
-    
+
     function last(List storage self) internal view returns (uint256) {
         return self.nodes[RESERVED][PREV];
     }
@@ -50,7 +62,9 @@ library CircularDoublyLinkedList {
         }
     }
 
-    function toArray(List storage self) internal view returns (uint256[] memory) {
+    function toArray(
+        List storage self
+    ) internal view returns (uint256[] memory) {
         uint256 length = self.length;
         uint256[] memory result = new uint256[](length);
         if (length > 0) {

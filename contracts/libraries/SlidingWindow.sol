@@ -17,8 +17,13 @@ library SlidingWindow {
 
     error ErrorInvalidBlockTime();
 
-    function _calculate(uint24 blockTime) internal pure returns (uint40 blocksPerCycle, uint40 blocksPerSlot) {
-        if (blockTime < MINIMUM_BLOCK_TIME_IN_MILLISECONDS || blockTime > MAXIMUM_BLOCK_TIME_IN_MILLISECONDS) {
+    function _calculate(
+        uint24 blockTime
+    ) internal pure returns (uint40 blocksPerCycle, uint40 blocksPerSlot) {
+        if (
+            blockTime < MINIMUM_BLOCK_TIME_IN_MILLISECONDS ||
+            blockTime > MAXIMUM_BLOCK_TIME_IN_MILLISECONDS
+        ) {
             revert ErrorInvalidBlockTime();
         }
         /// @custom:truncate https://docs.soliditylang.org/en/latest/types.html#division
@@ -30,14 +35,24 @@ library SlidingWindow {
         self.startBlockNumber = startBlockNumber;
     }
 
-    function snapshot(State storage self, uint24 blockTime, uint256 blockNumber) internal {
-        (uint256 cycleCache, uint8 slotCache) = cycleAndSlot(self, blockTime, blockNumber);
+    function snapshot(
+        State storage self,
+        uint24 blockTime,
+        uint256 blockNumber
+    ) internal {
+        (uint256 cycleCache, uint8 slotCache) = cycleAndSlot(
+            self,
+            blockTime,
+            blockNumber
+        );
         self.snapShotCycle = cycleCache;
         self.snapShotSlot = slotCache;
     }
 
-    function loadSnapShot(State storage self) internal view returns (uint256 ,uint8) {
-        return (self.snapShotCycle ,self.snapShotSlot);
+    function loadSnapShot(
+        State storage self
+    ) internal view returns (uint256, uint8) {
+        return (self.snapShotCycle, self.snapShotSlot);
     }
 
     function cycle(
@@ -46,11 +61,15 @@ library SlidingWindow {
         uint256 blockNumber
     ) internal view returns (uint256 value) {
         unchecked {
-            (uint40 blocksPerCycleCache,) = _calculate(blockTime);
+            (uint40 blocksPerCycleCache, ) = _calculate(blockTime);
             uint256 startBlockNumberCache = self.startBlockNumber;
             // Calculate era based on the difference between the current block and start block.
-            if (startBlockNumberCache > 0 && blockNumber > startBlockNumberCache) {
-                value = (blockNumber - startBlockNumberCache) / blocksPerCycleCache;
+            if (
+                startBlockNumberCache > 0 && blockNumber > startBlockNumberCache
+            ) {
+                value =
+                    (blockNumber - startBlockNumberCache) /
+                    blocksPerCycleCache;
             }
             // add snapShotCycle if not empty.
         }
@@ -62,10 +81,13 @@ library SlidingWindow {
         uint256 blockNumber
     ) internal view returns (uint8 value) {
         unchecked {
-            (uint40 blocksPerCycleCache,) = _calculate(blockTime);
+            (uint40 blocksPerCycleCache, ) = _calculate(blockTime);
             uint256 startBlockNumberCache = self.startBlockNumber;
             if (blockNumber > startBlockNumberCache) {
-                value = uint8(((blockNumber - startBlockNumberCache) % blocksPerCycleCache) / (blocksPerCycleCache / DAYS));
+                value = uint8(
+                    ((blockNumber - startBlockNumberCache) %
+                        blocksPerCycleCache) / (blocksPerCycleCache / DAYS)
+                );
             }
             // add snapShotSlot and calculate the actual current slot.
         }
@@ -76,6 +98,9 @@ library SlidingWindow {
         uint24 blockTime,
         uint256 blockNumber
     ) internal view returns (uint256, uint8) {
-        return (cycle(self, blockTime, blockNumber), slot(self, blockTime, blockNumber));
+        return (
+            cycle(self, blockTime, blockNumber),
+            slot(self, blockTime, blockNumber)
+        );
     }
 }

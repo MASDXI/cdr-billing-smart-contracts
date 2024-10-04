@@ -2,9 +2,40 @@
 
 This repository provides Call Detail Records (CDRs) billing using smart contracts written in Solidity. It enables telecom operators and service providers to manage billing processes transparently and efficiently on a blockchain network, ensuring accurate, immutable, and automated.
 
-## Introduction
+## Prerequisite
 
----
+- node [Download](https://nodejs.org/en/)
+- nvm [Download](https://github.com/nvm-sh/nvm#installing-and-updating)
+- git [Download](https://git-scm.com/)
+
+```shell
+git clone https://github.com/Kiwari-Labs/token-service-contracts.git
+cd token-service-contracts
+```
+
+## Installing
+
+To install all necessary packages and dependencies in the project, run command
+
+```
+yarn install
+```
+
+## Compile the code
+
+To compile the smart contracts, run command
+
+```
+yarn compile
+```
+
+## Testing
+
+To run the tests and ensure that the contracts behave as expected, run command
+
+```
+yarn test
+```
 
 ## Rationale
 
@@ -13,13 +44,11 @@ This repository provides Call Detail Records (CDRs) billing using smart contract
 
 ## Security Consideration
 
----
-
-## Getting Start
+- Current design when change blocktime total billing will be recalculate
 
 ---
 
 ## License
 
 All Code within 'contracts' directory is Copyright (C) sirawt. All rights reserved.  
-The `contracts` is released under the [ Apache License 2.0](LICENSE)
+The `contracts` is released under the [GNU General Public License v3.0](LICENSE)

@@ -5,8 +5,8 @@ import {
   } from "@nomicfoundation/hardhat-toolbox/network-helpers";
   import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
   import { expect } from "chai";
-  import hre from "hardhat";
-import { BytesLike, randomBytes } from "ethers";
+  import hre, { ethers } from "hardhat";
+import { BytesLike, hexlify, randomBytes } from "ethers";
   
   describe("Lock", function () {
     // We define a fixture to reuse the same setup in every test.
@@ -22,38 +22,38 @@ import { BytesLike, randomBytes } from "ethers";
       return { billingManager, owner, otherAccount };
     }
   
-    describe("Billing", function () {
+    describe("Call Detail Records Billing", function () {
       it("Should calculate correct cycle", async function () {
         const { billingManager, owner, otherAccount} = await loadFixture(deployBilling);
         const userId = randomBytes(16);
-        const blocks = 7862400; // if blocktime is 1000ms 3 months will be around 7862400 blocks
+        const mockCDR = [
+          1 /** SERVICE_TYPE */,
+          1727971507 /** timestamp Thursday, October 3, 2024 4:05:07 PM */,
+          1000 /** cost */,
+          1000 /** balance */];
+        const blocks = 2592000; // if blocktime is 1000ms 1 months will be around 2592000 blocks
         // @ts-ignore
-        await billingManager.addCDR(userId, [
-            1 /** SERVICE_TYPE */,
-            1727971507 /** timestamp Thursday, October 3, 2024 4:05:07 PM */,
-            1 /** cost */,
-            1 /** balance */]);
-        // @ts-ignore
-        await billingManager.addCDR(userId, [1,1727971507,1,1]);
-        console.log("🧾billing cycle:",(await billingManager.currentBillingCycleOf(userId)).toString());
-        expect(await billingManager.currentBillingCycleOf(userId)).to.equal(0);
-        console.log(await billingManager.currentSizeOfCDRs(userId));
-        console.log(await billingManager["cdrOf(bytes16,uint256)"](userId,0));
-        console.log(await billingManager["cdrOf(bytes16,uint256,uint8)"](userId,0,0));
-        await mine(blocks);
-        console.log(`⛏️  mining: ${blocks} blocks`);
-        console.log(await billingManager["cdrOf(bytes16,uint256)"](userId,2));
-        console.log("🧾billing cycle:",(await billingManager.currentBillingCycleOf(userId)).toString());
-      });
-  
-        //   it("Should fail if the unlockTime is not in the future", async function () {
-        //     // We don't use the fixture here because we want a different deployment
-        //     const latestTime = await time.latest();
-        //     const Lock = await hre.ethers.getContractFactory("Lock");
-        //     await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-        //       "Unlock time should be in the future"
-        //     );
-        //   });
+        await billingManager.addCDR(userId, mockCDR);
+        for (let index = 0; index < 12; index++) {
+          const lastestBlockNumber = await ethers.provider.getBlockNumber();
+          console.log(`📦 latest block at: #${lastestBlockNumber}`);
+          await mine(blocks);
+          console.log(`🔨 mining block: ${blocks}`);
+          for (let index = 0; index < 5; index++) {
+            // @ts-ignore
+            await billingManager.addCDR(userId, mockCDR);
+          }
+          const latestBilling = (await billingManager.currentBillingCycleOf(userId)).toString();
+          console.log(`🧾 latest billing cycle: #${latestBilling}`);
+          console.log("CDRs list:");
+          console.log(await billingManager["cdrOf(bytes16,uint256)"](userId,latestBilling));
+        }
+        const latestBilling = (await billingManager.currentBillingCycleOf(userId)).toString();
+        await billingManager.removeCDR(userId, 3);
+        console.log(await billingManager["cdrOf(bytes16,uint256)"](userId,latestBilling));
+        console.log(await billingManager.outstandingBalanceOf(userId));
+      });  
+
     });
 });
   
