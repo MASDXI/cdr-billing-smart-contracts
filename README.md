@@ -39,16 +39,16 @@ yarn test
 
 ## Rationale
 
-- The design approach should not tied exclusively to Solidity or Ethereum but can be applied across various Distributed Ledger Technologies (DLTs) or blockchain frameworks that support Turing-complete smart contracts.
-- Avoid `WRITE` or `UPDATE` operation with Sliding Window Algorithm for billing efficiently over a specified time period. This method helps in maintaining a consistent billing cycle by leveraging a sliding window mechanism that automatically accounts for time-based without needing constant manual updates.
+- The design approach not tied exclusively to `solidity` or `evm-based` but can be applied across various Distributed Ledger Technologies (DLTs) or blockchain frameworks that support turing-complete smart contracts.
+- Avoid `WRITE` or `UPDATE` operation with sliding window algorithm for billing efficiently over a specified time period. This method helps in maintaining a consistent billing cycle by leveraging a sliding window mechanism that automatically accounts for time-based without needing constant manual updates.
 
 ## Security Consideration
 
-- Current design when change blocktime total billing will be recalculate
+- AS-IS, when change the network `blocktime` total billing cycle will be recalculate
 
 ---
 
 ## License
 
-All Code within 'contracts' directory is Copyright (C) sirawt. All rights reserved.  
-The `contracts` is released under the [GNU General Public License v3.0](LICENSE)
+All code within the `contracts` directory is released under the [GNU General Public License v3.0](LICENSE).  
+Copyright (C) sirawt. You are free to use, modify, and distribute the code under the terms of the [GPL v3.0](LICENSE).
